@@ -15,6 +15,13 @@ import java.util.*;
 public class CachingBreedFetcher implements BreedFetcher {
     // TODO Task 2: Complete this class
     private int callsMade = 0;
+
+    /*
+    The Grand idea, first when we get a request, we check the cache, if it is there, we return it,
+    Otherwise we call the underlying fetcher, increment the callsMade counter, store the result in the cache,
+    and return it. If it is not in the cache, and not in the underlying fetcher, we throw a BreedNotFoundException.
+     */
+
     public CachingBreedFetcher(BreedFetcher fetcher) {
 
     }

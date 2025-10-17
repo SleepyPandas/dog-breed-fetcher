@@ -24,12 +24,68 @@ public class DogApiBreedFetcher implements BreedFetcher {
      * @throws BreedNotFoundException if the breed does not exist (or if the API call fails for any reason)
      */
     @Override
-    public List<String> getSubBreeds(String breed) {
+    public List<String> getSubBreeds(String breed) throws BreedFetcher.BreedNotFoundException {
         // TODO Task 1: Complete this method based on its provided documentation
         //      and the documentation for the dog.ceo API. You may find it helpful
         //      to refer to the examples of using OkHttpClient from the last lab,
         //      as well as the code for parsing JSON responses.
         // return statement included so that the starter code can compile and run.
-        return new ArrayList<>();
+
+        // Basically make the API Call
+
+        if (breed == null || breed.isBlank()) {
+            throw new BreedNotFoundException("Breed must be non-empty; Or Bread is invalid");
+        }
+
+
+        String url = "https://dog.ceo/api/breed/" + breed.toLowerCase() + "/list";
+        Request request = new Request.Builder()
+                .url(url)
+                .get()
+                .addHeader("Accept", "application/json")
+                .build();
+
+
+        // Parse the JSON Response
+
+        //return new ArrayList<>();
+
+        try (Response response = client.newCall(request).execute()) {
+            // To handle null body and unsuccessful response(s)0
+            if (response.body() == null || !response.isSuccessful()) {
+                throw new BreedFetcher.BreedNotFoundException("Breed not found: " + breed);
+            }
+
+
+
+            String body = response.body().string();
+            JSONObject json = new JSONObject(body);
+
+            // Reads the status and message from the JSON response
+            if (!"success".equalsIgnoreCase(json.optString("status"))) {
+                throw new BreedFetcher.BreedNotFoundException(json.optString("message", "Breed not found: " + breed));
+            }
+
+            JSONArray arr = json.getJSONArray("message");
+            List<String> result = new ArrayList<>(arr.length());
+            for (int i = 0; i < arr.length(); i++) {
+                System.out.println(result);
+                result.add(arr.getString(i));
+            }
+            return result;
+        } catch (IOException e) {
+            throw new BreedFetcher.BreedNotFoundException("Failed to fetch breed: " + breed);
+        }
+
+
+
     }
+
+//    public void main(String[] args) {
+//        List<String> test = getSubBreeds("Mastiff");
+//        System.out.println(test);
+//    }
+
+
 }
+
