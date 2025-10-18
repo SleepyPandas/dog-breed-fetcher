@@ -21,10 +21,9 @@ public class DogApiBreedFetcher implements BreedFetcher {
      * Fetch the list of sub breeds for the given breed from the dog.ceo API.
      * @param breed the breed to fetch sub breeds for
      * @return list of sub breeds for the given breed
-     * @throws BreedNotFoundException if the breed does not exist (or if the API call fails for any reason)
      */
     @Override
-    public List<String> getSubBreeds(String breed) throws BreedFetcher.BreedNotFoundException {
+    public List<String> getSubBreeds(String breed) throws BreedNotFoundException {
         // TODO Task 1: Complete this method based on its provided documentation
         //      and the documentation for the dog.ceo API. You may find it helpful
         //      to refer to the examples of using OkHttpClient from the last lab,
@@ -53,7 +52,7 @@ public class DogApiBreedFetcher implements BreedFetcher {
         try (Response response = client.newCall(request).execute()) {
             // To handle null body and unsuccessful response(s)0
             if (response.body() == null || !response.isSuccessful()) {
-                throw new BreedFetcher.BreedNotFoundException("Breed not found: " + breed);
+                throw new BreedNotFoundException("Breed not found: " + breed);
             }
 
 
@@ -63,7 +62,7 @@ public class DogApiBreedFetcher implements BreedFetcher {
 
             // Reads the status and message from the JSON response
             if (!"success".equalsIgnoreCase(json.optString("status"))) {
-                throw new BreedFetcher.BreedNotFoundException(json.optString("message", "Breed not found: " + breed));
+                throw new BreedNotFoundException(json.optString("message", "Breed not found: " + breed));
             }
 
             JSONArray arr = json.getJSONArray("message");
@@ -74,7 +73,7 @@ public class DogApiBreedFetcher implements BreedFetcher {
             }
             return result;
         } catch (IOException e) {
-            throw new BreedFetcher.BreedNotFoundException("Failed to fetch breed: " + breed);
+            throw new BreedNotFoundException("Failed to fetch breed: " + breed);
         }
 
 
