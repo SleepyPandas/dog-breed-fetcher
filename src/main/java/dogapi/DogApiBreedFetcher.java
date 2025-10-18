@@ -52,7 +52,7 @@ public class DogApiBreedFetcher implements BreedFetcher {
         try (Response response = client.newCall(request).execute()) {
             // To handle null body and unsuccessful response(s)0
             if (response.body() == null || !response.isSuccessful()) {
-                throw new BreedFetcher.BreedNotFoundException("Breed not found: " + breed);
+                throw new BreedNotFoundException("Breed not found: " + breed);
             }
 
 
@@ -62,7 +62,7 @@ public class DogApiBreedFetcher implements BreedFetcher {
 
             // Reads the status and message from the JSON response
             if (!"success".equalsIgnoreCase(json.optString("status"))) {
-                throw new BreedFetcher.BreedNotFoundException(json.optString("message", "Breed not found: " + breed));
+                throw new BreedNotFoundException(json.optString("message", "Breed not found: " + breed));
             }
 
             JSONArray arr = json.getJSONArray("message");
@@ -73,7 +73,7 @@ public class DogApiBreedFetcher implements BreedFetcher {
             }
             return result;
         } catch (IOException e) {
-            throw new BreedFetcher.BreedNotFoundException("Failed to fetch breed: " + breed);
+            throw new BreedNotFoundException("Failed to fetch breed: " + breed);
         }
 
 
