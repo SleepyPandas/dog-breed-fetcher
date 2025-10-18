@@ -14,7 +14,6 @@ import java.util.*;
  */
 public class CachingBreedFetcher implements BreedFetcher {
     // TODO Task 2: Complete this class
-    private int callsMade = 0;
 
     /*
     The Grand idea, first when we get a request, we check the cache, if it is there, we return it,
@@ -22,14 +21,34 @@ public class CachingBreedFetcher implements BreedFetcher {
     and return it. If it is not in the cache, and not in the underlying fetcher, we throw a BreedNotFoundException.
      */
 
-    public CachingBreedFetcher(BreedFetcher fetcher) {
+    private final BreedFetcher fetcher;
+    private final Map<String, List<String>> cache = new HashMap<>();
+    private int callsMade = 0;
 
+    public CachingBreedFetcher(BreedFetcher fetcher) {
+        // store the injected fetcher for delegation
+        this.fetcher = Objects.requireNonNull(fetcher, "fetcher");
     }
 
     @Override
-    public List<String> getSubBreeds(String breed) {
-        // return statement included so that the starter code can compile and run.
-        return new ArrayList<>();
+    public List<String> getSubBreeds(String breed) throws BreedNotFoundException {
+        if (breed == null || breed.isBlank()) {
+            // Let the behavior be consistent with other implementations: treat invalid input as not found
+            throw new BreedNotFoundException(breed);
+        }
+
+        String key = breed.toLowerCase();
+
+        List<String> cached = cache.get(key);
+        if (cached != null) {
+            return new ArrayList<>(cached);
+        }
+
+        callsMade++;
+        List<String> result = fetcher.getSubBreeds(breed);
+        cache.put(key, result);
+        return result;
+
     }
 
     public int getCallsMade() {
